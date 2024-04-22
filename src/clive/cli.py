@@ -4,6 +4,8 @@ import logging
 
 import click
 
+from clive.loaders.sssom_loader import load_map_file
+
 @click.group()
 @click.option("-v", "--verbose", count=True)
 @click.option("-q", "--quiet")
@@ -27,7 +29,7 @@ def main(verbose: int, quiet: bool):
 @main.command()
 @click.argument("input_arg", required=True, type=click.Path(exists=True))
 def load_maps(
-    input_arg: str,
+    input_arg: click.Path,
     **kwargs,
 ):
     """Load one or more SSSOM maps from a file or directory.
@@ -40,7 +42,9 @@ def load_maps(
 
     """
 
-    click.echo(click.format_filename(input_arg))
+    logging.info(f"Loading from {click.format_filename(input_arg)}")
+    msdf = load_map_file(input_arg)
+    
 
 @main.command()
 @click.argument("input_arg", required=True)
