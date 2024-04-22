@@ -17,6 +17,9 @@ setuptools = ">=65.5.0"
 tox = ">=3.25.1"
 mkdocs-mermaid2-plugin = ">=0.6.0"
 
+[tool.poetry.scripts]
+clive = "clive.cli:main"
+
 [tool.black]
 line-length = 100
 target-version = ["py310"]
