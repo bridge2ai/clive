@@ -2,13 +2,14 @@
 name = "clive"
 version = "0.0.1"
 description = "Clinical Lexicon Integration and Validation Engine. A tool for loading, combining, and checking SSSOM maps from multisite clinical vocabularies."
-authors = ["Your Name <you@example.com>"]
+authors = ["caufieldjh"]
 license = "BSD-3"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
 sssom = "^0.4.7"
+oaklib = "^0.6.3"
 
 
 [build-system]
