@@ -1,4 +1,4 @@
-"""Command line interface for clive"""
+"""Command line interface for clive."""
 
 import logging
 

@@ -2,7 +2,7 @@
 
 import unittest
 
-from click.testing import CliRunner, Result
+from click.testing import CliRunner
 
 from clive.cli import main
 
