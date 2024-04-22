@@ -42,6 +42,9 @@ def load_maps(
 
     """
 
+    # TODO: Add support for loading multiple files from a directory
+    # TODO: Do something with the MSDF after loading it
+
     logging.info(f"Loading from {click.format_filename(input_arg)}")
     msdf = load_map_file(input_arg)
     
@@ -59,5 +62,7 @@ def load_maps_from_gsheet(
     clive load-maps [URL to Google Sheet]
 
     """
+
+    # TODO: Add support for loading from a URL
 
     click.echo(click.format_filename(input_arg))
