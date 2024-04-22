@@ -7,7 +7,7 @@ import click
 @click.group()
 @click.option("-v", "--verbose", count=True)
 @click.option("-q", "--quiet")
-def main(verbose: int, quiet: bool, cache_db: str, skip_annotator):
+def main(verbose: int, quiet: bool):
     """CLI for clive.
 
     :param verbose: Verbosity while running.
