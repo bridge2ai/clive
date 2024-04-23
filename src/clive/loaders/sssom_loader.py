@@ -49,13 +49,22 @@ def load_map_gsheet(sheet_url: str) -> MappingSetDataFrame:
         + "format=csv"
     )
 
+    # Get the sheet ID alone
+    match = re.match(pattern, sheet_url)
+    if match:
+        sheet_id = match.group(1)
+    else:
+        sheet_id = None
+
     export_url = re.sub(pattern, replacement, sheet_url)
 
     # Load table from its HTML
     sheet_df = pd.read_csv(export_url)
 
+    print(sheet_df)
+
     # Save a local copy
-    sheet_df.to_csv(f"1.tsv", sep="\t", index=False)
+    sheet_df.to_csv(f"{sheet_id}.tsv", sep="\t", index=False)
 
     msdf = MappingSetDataFrame(sheet_df)
 
