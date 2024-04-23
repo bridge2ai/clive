@@ -1,10 +1,11 @@
 """Command line interface for clive."""
 
 import logging
+from pathlib import Path
 
 import click
 
-from clive.loaders.sssom_loader import load_map_file
+from clive.loaders.sssom_loader import init_map_dataframe, load_map_file
 
 @click.group()
 @click.option("-v", "--verbose", count=True)
@@ -42,13 +43,27 @@ def load_maps(
 
     """
 
-    # TODO: Add support for loading multiple files from a directory
     # TODO: Do something with the MSDF after loading it
 
     logging.info(f"Loading from {click.format_filename(input_arg)}")
-    msdf = load_map_file(input_arg)
-    
 
+    msdf = init_map_dataframe()
+
+    # Check if input is a directory
+    if Path(input_arg).is_dir():
+        for file in Path(input_arg).iterdir():
+            if file.suffix == ".tsv":
+                logging.info(f"Found {file} - looks like SSSOM, loading.")
+                new_msdf = load_map_file(file)
+                msdf.merge(new_msdf)
+            else:
+                logging.info(f"Found {file} - does not look like SSSOM, skipping.")
+    else:
+        new_msdf = load_map_file(input_arg)
+        msdf.merge(new_msdf)
+    
+    logging.info(f"Loaded {len(msdf.df)} mappings")
+    
 @main.command()
 @click.argument("input_arg", required=True)
 def load_maps_from_gsheet(
