@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 
-from clive.loaders.sssom_loader import init_map_dataframe, load_map_file
+from clive.loaders.sssom_loader import init_map_dataframe, load_map_file, load_map_gsheet
 
 @click.group()
 @click.option("-v", "--verbose", count=True)
@@ -72,12 +72,19 @@ def load_maps_from_gsheet(
 ):
     """Load one or more SSSOM maps from a Google Sheet.
 
+    Provide the full URL, including the part after the gid.
+
     Example:
     
-    clive load-maps [URL to Google Sheet]
+    clive load-maps [URL of Google Sheet]
 
     """
 
-    # TODO: Add support for loading from a URL
+    # TODO: Do something with the MSDF after loading it
+    # TODO: fix some funkiness with the header rows
 
-    click.echo(click.format_filename(input_arg))
+    logging.info(f"Will try to load from sheet with URL {input_arg}")
+
+    msdf = load_map_gsheet(input_arg)
+
+    logging.info(f"Loaded {len(msdf.df)} mappings")
