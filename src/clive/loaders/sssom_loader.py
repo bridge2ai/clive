@@ -8,6 +8,11 @@ import pandas as pd
 from sssom.parsers import parse_sssom_table
 from sssom.util import MappingSetDataFrame
 
+TEMP_DIR = "temp"
+
+def create_tempdir():
+    """Create a temporary directory for storing files."""
+    Path(TEMP_DIR).mkdir(parents=True, exist_ok=True)
 
 def init_map_dataframe() -> MappingSetDataFrame:
     """Initialize an empty MappingSetDataFrame object.
@@ -39,6 +44,8 @@ def load_map_gsheet(sheet_url: str) -> MappingSetDataFrame:
     :return: A MappingSetDataFrame object.
     """
 
+    create_tempdir()
+
     # Convert the URL to a sheet ID and a gid
 
     pattern = r"https://docs\.google\.com/spreadsheets/d/([a-zA-Z0-9-_]+)(/edit#gid=(\d+)|/edit.*)?"
@@ -61,10 +68,10 @@ def load_map_gsheet(sheet_url: str) -> MappingSetDataFrame:
     # Load table from its HTML
     sheet_df = pd.read_csv(export_url)
 
-    print(sheet_df)
+    temp_table_path = Path(TEMP_DIR) / f"{sheet_id}.tsv"
 
-    # Save a local copy
-    sheet_df.to_csv(f"{sheet_id}.tsv", sep="\t", index=False)
+    # Save a local copy to the temp file
+    sheet_df.to_csv(temp_table_path, sep="\t", index=False)
 
     msdf = MappingSetDataFrame(sheet_df)
 
