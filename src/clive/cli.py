@@ -5,13 +5,15 @@ from pathlib import Path
 
 import click
 
+from sssom.writers import write_table
+
 from clive.loaders.sssom_loader import init_map_dataframe, load_map_file, load_map_gsheet
 from clive.validators.mapping_validator import validate_map
 
 output_option = click.option(
     "-o",
     "--output",
-    type=click.File(mode="w"),
+    type=click.Path(exists=False),
     default="output.sssom.tsv",
     help="Output file path.",
 )
@@ -43,7 +45,7 @@ def main(verbose: int, quiet: bool):
 @click.argument("input_arg", required=True, type=click.Path(exists=True))
 def load_maps(
     input_arg: click.Path,
-    output: str,
+    output: click.Path,
     **kwargs,
 ):
     """Load one or more SSSOM maps from a file or directory.
@@ -55,6 +57,11 @@ def load_maps(
     clive load-maps path/to/directory/
 
     """
+
+    # TODO: combine metadata fields like creator_id intelligently
+    # TODO: trim the prefix map to just those used in the CURIEs,
+    # not Everything (this may be a SSSOM bug?)
+    # TODO: enable setting license
 
     logging.info(f"Loading from {click.format_filename(input_arg)}")
 
@@ -79,7 +86,8 @@ def load_maps(
     validate_map(msdf)
 
     logging.info(f"Writing to {output}")
-
+    with open(output, "w") as outputfile:
+        write_table(msdf, outputfile)
 
 
 @main.command()
