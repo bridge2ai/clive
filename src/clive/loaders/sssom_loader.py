@@ -1,5 +1,6 @@
 """Loader functions for SSSOM."""
 
+import csv
 from pathlib import Path
 import re
 
@@ -69,10 +70,21 @@ def load_map_gsheet(sheet_url: str) -> MappingSetDataFrame:
     sheet_df = pd.read_csv(export_url)
 
     temp_table_path = Path(TEMP_DIR) / f"{sheet_id}.tsv"
+    temp_table_write_path = Path(TEMP_DIR) / f"{sheet_id}.tsv.temp"
 
     # Save a local copy to the temp file
-    sheet_df.to_csv(temp_table_path, sep="\t", index=False)
+    sheet_df.to_csv(temp_table_path, sep="\t", index=False, header=False, quoting = csv.QUOTE_NONE)
 
-    msdf = MappingSetDataFrame(sheet_df)
+    # Clean up the header
+    with open(temp_table_path, "r") as f:
+        with open(temp_table_write_path, "w") as f2:
+            for line in f:
+                if line.startswith("#"):
+                    f2.write(line.rstrip() + "\n")
+                else:
+                    f2.write(line)
+    temp_table_write_path.rename(temp_table_path)
+
+    msdf = load_map_file(temp_table_path)
 
     return msdf

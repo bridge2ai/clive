@@ -81,7 +81,6 @@ def load_maps_from_gsheet(
     """
 
     # TODO: Do something with the MSDF after loading it
-    # TODO: fix some funkiness with the header rows
 
     logging.info(f"Will try to load from sheet with URL {input_arg}")
 
