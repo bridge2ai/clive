@@ -76,7 +76,7 @@ def load_maps_from_gsheet(
 
     Example:
     
-    clive load-maps [URL of Google Sheet]
+    clive load-maps-from-gsheet [URL of Google Sheet]
 
     """
 
