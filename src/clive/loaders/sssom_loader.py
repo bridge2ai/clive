@@ -68,16 +68,18 @@ def load_map_gsheet(sheet_url: str) -> MappingSetDataFrame:
 
     # Load table from its HTML
     sheet_df = pd.read_csv(export_url)
+    firstline = sheet_df.columns[0]
 
     temp_table_path = Path(TEMP_DIR) / f"{sheet_id}.tsv"
     temp_table_write_path = Path(TEMP_DIR) / f"{sheet_id}.tsv.temp"
 
     # Save a local copy to the temp file
-    sheet_df.to_csv(temp_table_path, sep="\t", index=False, header=False, quoting = csv.QUOTE_NONE)
+    sheet_df.to_csv(temp_table_path, sep="\t", index=False, header=None, quoting = csv.QUOTE_NONE)
 
     # Clean up the header
     with open(temp_table_path, "r") as f:
         with open(temp_table_write_path, "w") as f2:
+            f2.write(firstline + "\n")
             for line in f:
                 if line.startswith("#"):
                     f2.write(line.rstrip() + "\n")
