@@ -6,6 +6,16 @@ from pathlib import Path
 import click
 
 from clive.loaders.sssom_loader import init_map_dataframe, load_map_file, load_map_gsheet
+from clive.validators.mapping_validator import validate_map
+
+output_option = click.option(
+    "-o",
+    "--output",
+    type=click.File(mode="w"),
+    default="output.sssom.tsv",
+    help="Output file path.",
+)
+
 
 @click.group()
 @click.option("-v", "--verbose", count=True)
@@ -27,23 +37,24 @@ def main(verbose: int, quiet: bool):
         logger.setLevel(level=logging.ERROR)
     logger.info(f"Logger {logger.name} set to level {logger.level}")
 
+
 @main.command()
+@output_option
 @click.argument("input_arg", required=True, type=click.Path(exists=True))
 def load_maps(
     input_arg: click.Path,
+    output: str,
     **kwargs,
 ):
     """Load one or more SSSOM maps from a file or directory.
 
     Example:
-    
+
     clive load-maps path/to/file.sssom.tsv
 
     clive load-maps path/to/directory/
 
     """
-
-    # TODO: Do something with the MSDF after loading it
 
     logging.info(f"Loading from {click.format_filename(input_arg)}")
 
@@ -61,9 +72,16 @@ def load_maps(
     else:
         new_msdf = load_map_file(input_arg)
         msdf.merge(new_msdf)
-    
+
     logging.info(f"Loaded {len(msdf.df)} mappings")
-    
+
+    logging.info(f"Performing SSSOM validation.")
+    validate_map(msdf)
+
+    logging.info(f"Writing to {output}")
+
+
+
 @main.command()
 @click.argument("input_arg", required=True)
 def load_maps_from_gsheet(
@@ -75,12 +93,13 @@ def load_maps_from_gsheet(
     Provide the full URL, including the part after the gid.
 
     Example:
-    
+
     clive load-maps-from-gsheet [URL of Google Sheet]
 
     """
 
-    # TODO: Do something with the MSDF after loading it
+    # TODO: Enable loading multiple maps from tabs,
+    # or from different documents
 
     logging.info(f"Will try to load from sheet with URL {input_arg}")
 
