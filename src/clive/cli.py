@@ -5,6 +5,7 @@ from pathlib import Path
 
 import click
 
+import duckdb
 from sssom.writers import write_table, write_json
 
 from clive.loaders.sssom_loader import init_map_dataframe, load_map_file, load_map_gsheet
@@ -89,12 +90,18 @@ def load_maps(
 
     logging.info(f"Writing to {output}")
     table_output = Path(output) / "output.sssom.tsv"
-    json_output = Path(output) / "output.json"
+    json_output = Path(output) / "output.sssom.json"
     with open(table_output, "w") as outputfile:
         write_table(msdf, outputfile)
     with open(json_output, "w") as outputfile:
         write_json(msdf, outputfile)
 
+    # TODO: DuckDB does some of its own validation,
+    # e.g. checking for duplicate names with case insensitivity.
+    # So this should be handled here.
+
+    logging.info(f"Loading into DuckDB.")
+    duckdb.read_json(json_output.as_posix())
 
 @main.command()
 @click.argument("input_arg", required=True)
