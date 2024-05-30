@@ -85,7 +85,7 @@ def load_maps(
 
     logging.info(f"Loaded {len(msdf.df)} mappings")
 
-    logging.info(f"Performing SSSOM validation.")
+    logging.info("Performing SSSOM validation.")
     validate_map(msdf)
 
     logging.info(f"Writing to {output}")
@@ -100,7 +100,7 @@ def load_maps(
     # e.g. checking for duplicate names with case insensitivity.
     # So this should be handled here.
 
-    logging.info(f"Loading into DuckDB.")
+    logging.info("Loading into DuckDB.")
     duckdb.read_json(json_output.as_posix())
 
 @main.command()
