@@ -117,7 +117,8 @@ def load_maps(
     )
     con.table("all_maps").show()
     logging.info(
-        f"Mapping DB now contains {con.execute('SELECT COUNT(*) FROM all_maps').fetchone()[0]} mapping sets."
+        "Mapping DB now contains"
+        f" {con.execute('SELECT COUNT(*) FROM all_maps').fetchone()[0]} mapping sets."
     )
 
 
