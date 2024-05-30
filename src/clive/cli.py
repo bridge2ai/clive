@@ -60,8 +60,6 @@ def load_maps(
     """
 
     # TODO: combine metadata fields like creator_id intelligently
-    # TODO: trim the prefix map to just those used in the CURIEs,
-    # not Everything (this may be a SSSOM bug?)
     # TODO: enable setting license
 
     Path(output).mkdir(parents=True, exist_ok=True)

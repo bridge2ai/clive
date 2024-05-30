@@ -6,6 +6,8 @@ import re
 
 import pandas as pd
 
+from curies import Converter
+from sssom import get_default_metadata
 from sssom.parsers import parse_sssom_table
 from sssom.util import MappingSetDataFrame
 
@@ -21,7 +23,17 @@ def init_map_dataframe() -> MappingSetDataFrame:
     :return: An empty MappingSetDataFrame object.
     """
     df = pd.DataFrame()
-    return MappingSetDataFrame(df)
+
+    # This instatiation behavior may not be necessary
+    # in future versions of sssom-py.
+    # See https://github.com/mapping-commons/sssom-py/issues/513
+
+    metadata = get_default_metadata()
+    metadata['curie_map'] = {}
+    converter = Converter.from_prefix_map(metadata['curie_map'])
+    msdf = MappingSetDataFrame(converter=converter, df=df, metadata=metadata)
+
+    return msdf
 
 
 def load_map_file(input_path: Path) -> MappingSetDataFrame:
@@ -32,6 +44,11 @@ def load_map_file(input_path: Path) -> MappingSetDataFrame:
     :return: A MappingSetDataFrame object.
     """
     msdf = parse_sssom_table(input_path)
+    
+    # This doesn't currently work as expected, so the workaround
+    # below is used instead
+    # See https://github.com/mapping-commons/sssom-py/issues/537
+    # msdf.clean_prefix_map()
 
     return msdf
 
