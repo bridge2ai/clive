@@ -46,7 +46,7 @@ def load_map_file(input_path: Path) -> MappingSetDataFrame:
     msdf = parse_sssom_table(input_path)
     
     # This doesn't currently work as expected, so the workaround
-    # below is used instead
+    # in init_map_dataframe is used instead.
     # See https://github.com/mapping-commons/sssom-py/issues/537
     # msdf.clean_prefix_map()
 
