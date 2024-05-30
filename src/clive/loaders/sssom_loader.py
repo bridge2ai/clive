@@ -1,13 +1,21 @@
 """Loader functions for SSSOM."""
 
+import csv
 from pathlib import Path
 import re
 
 import pandas as pd
 
+from curies import Converter
+from sssom import get_default_metadata
 from sssom.parsers import parse_sssom_table
 from sssom.util import MappingSetDataFrame
 
+TEMP_DIR = "temp"
+
+def create_tempdir():
+    """Create a temporary directory for storing files."""
+    Path(TEMP_DIR).mkdir(parents=True, exist_ok=True)
 
 def init_map_dataframe() -> MappingSetDataFrame:
     """Initialize an empty MappingSetDataFrame object.
@@ -15,7 +23,17 @@ def init_map_dataframe() -> MappingSetDataFrame:
     :return: An empty MappingSetDataFrame object.
     """
     df = pd.DataFrame()
-    return MappingSetDataFrame(df)
+
+    # This instatiation behavior may not be necessary
+    # in future versions of sssom-py.
+    # See https://github.com/mapping-commons/sssom-py/issues/513
+
+    metadata = get_default_metadata()
+    metadata['curie_map'] = {}
+    converter = Converter.from_prefix_map(metadata['curie_map'])
+    msdf = MappingSetDataFrame(converter=converter, df=df, metadata=metadata)
+
+    return msdf
 
 
 def load_map_file(input_path: Path) -> MappingSetDataFrame:
@@ -26,6 +44,11 @@ def load_map_file(input_path: Path) -> MappingSetDataFrame:
     :return: A MappingSetDataFrame object.
     """
     msdf = parse_sssom_table(input_path)
+    
+    # This doesn't currently work as expected, so the workaround
+    # in init_map_dataframe is used instead.
+    # See https://github.com/mapping-commons/sssom-py/issues/537
+    # msdf.clean_prefix_map()
 
     return msdf
 
@@ -38,6 +61,8 @@ def load_map_gsheet(sheet_url: str) -> MappingSetDataFrame:
     :param sheet_id: The ID of the Google Sheet.
     :return: A MappingSetDataFrame object.
     """
+
+    create_tempdir()
 
     # Convert the URL to a sheet ID and a gid
 
@@ -60,12 +85,25 @@ def load_map_gsheet(sheet_url: str) -> MappingSetDataFrame:
 
     # Load table from its HTML
     sheet_df = pd.read_csv(export_url)
+    firstline = sheet_df.columns[0]
 
-    print(sheet_df)
+    temp_table_path = Path(TEMP_DIR) / f"{sheet_id}.tsv"
+    temp_table_write_path = Path(TEMP_DIR) / f"{sheet_id}.tsv.temp"
 
-    # Save a local copy
-    sheet_df.to_csv(f"{sheet_id}.tsv", sep="\t", index=False)
+    # Save a local copy to the temp file
+    sheet_df.to_csv(temp_table_path, sep="\t", index=False, header=None, quoting = csv.QUOTE_NONE)
 
-    msdf = MappingSetDataFrame(sheet_df)
+    # Clean up the header
+    with open(temp_table_path, "r") as f:
+        with open(temp_table_write_path, "w") as f2:
+            f2.write(firstline + "\n")
+            for line in f:
+                if line.startswith("#"):
+                    f2.write(line.rstrip() + "\n")
+                else:
+                    f2.write(line)
+    temp_table_write_path.rename(temp_table_path)
+
+    msdf = load_map_file(temp_table_path)
 
     return msdf
