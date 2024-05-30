@@ -113,7 +113,7 @@ def load_maps(
 
     json_output_string = json_output.as_posix()
     con.execute(
-        f"CREATE OR REPLACE TABLE all_maps AS SELECT * FROM read_json_auto('{json_output_string}')"
+        "CREATE OR REPLACE TABLE all_maps AS SELECT * FROM read_json_auto( ? )", [json_output_string]
     )
     con.table("all_maps").show()
     logging.info(
