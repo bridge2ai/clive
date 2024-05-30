@@ -98,8 +98,28 @@ def load_maps(
     # e.g. checking for duplicate names with case insensitivity.
     # So this should be handled here.
 
-    logging.info("Loading into DuckDB.")
-    duckdb.read_json(json_output.as_posix())
+    # TODO: This currently creates or replaces the table,
+    # but in practice we'd prefer to insert and update
+    # as needed.
+
+    # TODO: Make DB handling its own function
+
+    # TODO: parse from a DF directly; this doesn't
+    # really need to be parsed from the JSON
+
+    db_output = Path(output) / "output.db"
+    con = duckdb.connect(db_output.as_posix())
+    logging.info(f"Loading into DuckDB at {db_output}")
+
+    json_output_string = json_output.as_posix()
+    con.execute(
+        f"CREATE OR REPLACE TABLE all_maps AS SELECT * FROM read_json_auto('{json_output_string}')"
+    )
+    con.table("all_maps").show()
+    logging.info(
+        f"Mapping DB now contains {con.execute('SELECT COUNT(*) FROM all_maps').fetchone()[0]} mapping sets."
+    )
+
 
 @main.command()
 @click.argument("input_arg", required=True)
